@@ -13,10 +13,10 @@ boolean __voting_setting_make_extra_adventure_in_run_super_important = false; //
 
 boolean __voting_setting_use_absentee_ballots = false; //this is not yet written
 boolean __voting_setting_confirm_initiatives_in_run = false; //set this to true if you want a confirmation box before we vote. or just vote by hand
-string __voting_version = "1.0";
+string __voting_version = "1.0.1";
 
 
-boolean [string] __voting_negative_effects = $strings[Add sedatives to the water supply.,Distracting noises broadcast through compulsory teeth-mounted radio receivers.,Emissions cap on all magic-based combustion.,Exercise ban.,Mandatory 6pm curfew.,Requirement that all weapon handles be buttered.,Safety features added to all melee weapons.,Shut down all local dog parks.,State nudity initiative.,Vaccination reversals for all citizens.,All bedsheets replaced with giant dryer sheets.,All citizens required to look all four ways before crossing the street.,Ban on petroleum-based gels and poumades.,Increased taxes at all income levels.,Mandatory item tithing.,Reduced public education spending.];
+boolean [string] __voting_negative_effects = $strings[Add sedatives to the water supply.,Distracting noises broadcast through compulsory teeth-mounted radio receivers.,Emissions cap on all magic-based combustion.,Exercise ban.,Mandatory 6pm curfew.,Requirement that all weapon handles be buttered.,Safety features added to all melee weapons.,Shut down all local dog parks.,State nudity initiative.,Vaccination reversals for all citizens.,All bedsheets replaced with giant dryer sheets.,All citizens required to look <i>all four</i> ways before crossing the street.,Ban on petroleum-based gels and pomades.,Increased taxes at all income levels.,Mandatory item tithing.,Reduced public education spending.];
 
 //allow_interacting_with_user set to false disables a user_confirm, so the user cannot prevent a script from obtaining the voted badge
 void voteInVotingBooth(boolean allow_interacting_with_user)
@@ -24,6 +24,11 @@ void voteInVotingBooth(boolean allow_interacting_with_user)
 	print_html("VotingBooth v" + __voting_version + ".");
 	buffer page_text = visit_url("place.php?whichplace=town_right&action=townright_vote");
 	
+	if (page_text.contains_text("Here is the impact of your local ballot initiatives"))
+	{
+		print("Already voted today.");
+		return;
+	}
 	if (__voting_setting_use_absentee_ballots)
 	{
 	}
@@ -145,8 +150,8 @@ void voteInVotingBooth(boolean allow_interacting_with_user)
 	initiative_descriptions["State nudity initiative."] = "-50% Gear Drops from Monsters";
 	initiative_descriptions["Vaccination reversals for all citizens."] = "Maximum HP -50%";
 	initiative_descriptions["All bedsheets replaced with giant dryer sheets."] = "Maximum MP -50%";
-	initiative_descriptions["All citizens required to look all four ways before crossing the street."] = "-30% Combat Initiative";
-	initiative_descriptions["Ban on petroleum-based gels and poumades."] = "Moxie -20";
+	initiative_descriptions["All citizens required to look <i>all four</i> ways before crossing the street."] = "-30% Combat Initiative";
+	initiative_descriptions["Ban on petroleum-based gels and pomades."] = "Moxie -20";
 	initiative_descriptions["Increased taxes at all income levels."] = "-30% Meat from Monsters";
 	initiative_descriptions["Mandatory item tithing."] = "-20% Item Drops from Monsters";
 	initiative_descriptions["Reduced public education spending."] = "Mysticality -20";
