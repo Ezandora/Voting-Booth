@@ -1,5 +1,5 @@
 //VotingBooth.ash
-//Auto-votes. Biases the kingdom towards more ghosts, because those are more useful in-run.
+//Auto-votes. Biases the kingdom towards more snakes, because those reduce variance due to IRL days.
 //Also logs daily initiatives in the format:
 //VOTING_BOOTH_LOG•daycount•class•path
 //Useful for spading.
@@ -13,10 +13,111 @@ boolean __voting_setting_make_extra_adventure_in_run_super_important = false; //
 
 boolean __voting_setting_use_absentee_ballots = false; //this is not yet written
 boolean __voting_setting_confirm_initiatives_in_run = false; //set this to true if you want a confirmation box before we vote. or just vote by hand
-string __voting_version = "1.0.2";
+string __voting_version = "1.0.3";
 
+int __SNAKES__ = 5;
+int __BRCRAT__ = 4;
+int __SLIMES__ = 3;
+int __MUTANT__ = 2;
+int __GHOSTS__ = 1;
+int __HUHWAT__ = 0;
 
 boolean [string] __voting_negative_effects = $strings[Add sedatives to the water supply.,Distracting noises broadcast through compulsory teeth-mounted radio receivers.,Emissions cap on all magic-based combustion.,Exercise ban.,Mandatory 6pm curfew.,Requirement that all weapon handles be buttered.,Safety features added to all melee weapons.,Shut down all local dog parks.,State nudity initiative.,Vaccination reversals for all citizens.,All bedsheets replaced with giant dryer sheets.,All citizens required to look <i>all four</i> ways before crossing the street.,Ban on petroleum-based gels and pomades.,Increased taxes at all income levels.,Mandatory item tithing.,Reduced public education spending.];
+
+//helpers to determine what a platform is
+boolean isPlatformSnakes(string platform) {
+	foreach s in $strings[increase the number of snakes,flavored drink in a tube,introduce an influx of snakes,Everyone loves snakes,long friend]
+	{
+		if (platform.contains_text(s))
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+boolean isPlatformGov(string platform) {
+	foreach s in $strings[curtailing of unnatural modern technologies,implement healthcare reforms to ensure every citizen is healthy,enact strictly enforced efficiency laws,put a stop to their nefarious schemes,rigorous and comprehensive DNA harvesting program]
+	{
+		if (platform.contains_text(s))
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+boolean isPlatformSlimes(string platform) {
+	foreach s in $strings[lots of magical lard everywhere,bringing this blessing to the entire population,releasing ambulatory garbage-eating slimes,gussy this place up and make it really nice,mining and refining processes begin immediately]
+	{
+		if (platform.contains_text(s))
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+
+boolean isPlatformMutants(string platform) {
+	foreach s in $strings[reintroduce Pork Elf DNA into our gene pool,be even stronger and more vigorous,distribute all the medications for all known diseases simultaneously,be able to feel his presence directly,wondrous chemical that my people use]
+	{
+		if (platform.contains_text(s))
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+boolean isPlatformGhosts(string platform) {
+	foreach s in $strings[seance to summon their ancient spirits,you like to see your deceased loved ones again,don't think I need to tell you that graveyards are a terribly inefficient use of space,is possible that this might displace and anger your,How could you possibly vote against kindness energy]
+	{
+		if (platform.contains_text(s))
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+int getVoteByPlatform(string platform) {
+	if (isPlatformSnakes(platform)) {
+		return __SNAKES__;
+	}
+	if (isPlatformGov(platform)) {
+		return __BRCRAT__;
+	}
+	if (isPlatformSlimes(platform)) {
+		return __SLIMES__;
+	}
+	if (isPlatformMutants(platform)) {
+		return __MUTANT__;
+	}
+	if (isPlatformGhosts(platform)) {
+		return __GHOSTS__;
+	}
+	return __HUHWAT__;
+}
+
+string getVoteName(int vote) {
+	if (vote == __SNAKES__ ) {
+		return "Snakes";
+	}
+	if (vote == __BRCRAT__) {
+		return "Government Beauraucrat";
+	}
+	if (vote == __SLIMES__) {
+		return "Slime Blob";
+	}
+	if (vote == __MUTANT__) {
+		return "Mutant";
+	}
+	if (vote == __GHOSTS__) {
+		return "Ghosts";
+	}
+	return "Huh? What?";
+}
 
 //allow_interacting_with_user set to false disables a user_confirm, so the user cannot prevent a script from obtaining the voted badge
 void voteInVotingBooth(boolean allow_interacting_with_user)
@@ -163,29 +264,20 @@ void voteInVotingBooth(boolean allow_interacting_with_user)
 	//Bias the global votes towards ghosts:
 	if (platform_matches.count() == 2)
 	{
+		int best_vote = -1;
 		foreach key in platform_matches
 		{
 			string platform = platform_matches[key][1];
-			boolean zoinks = false;
-			//print_html(key + ": " + platform);
-			
-			foreach s in $strings[seance to summon their ancient spirits,you like to see your deceased loved ones again,don't think I need to tell you that graveyards are a terribly inefficient use of space,is possible that this might displace and anger your,How could you possibly vote against kindness energy] //'
-			{
-				if (platform.contains_text(s))
-				{
-					zoinks = true;
-					break;
-				}
-			}
-			
-			
-			if (zoinks)
-			{
-				print_html("Voting for ghosts.");
+			int vote = getVoteByPlatform(platform);
+			if (vote > best_vote) {
+				print_html("Changed vote to "+getVoteName(vote));
 				desired_g = key + 1;
-				break;
+				best_vote = vote;
 			}
 		}
+		print_html("Decided to vote for "+getVoteName(best_vote));
+	} else {
+		print_html("Parsing failed, voting randomly");
 	}
 
 	string [int][int] local_initiative_matches = page_text.group_string("<input type=\"checkbox\".*?value=\"([0-9])\".*?> (.*?)<br");
