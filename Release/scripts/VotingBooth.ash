@@ -272,7 +272,7 @@ void voteInVotingBooth(boolean allow_interacting_with_user)
 			if (vote > best_vote) {
 				print_html("Changed vote to "+getVoteName(vote));
 				desired_g = key + 1;
-                best_vote = vote;
+				best_vote = vote;
 			}
 		}
 		print_html("Decided to vote for "+getVoteName(best_vote));
