@@ -13,7 +13,7 @@ boolean __voting_setting_make_extra_adventure_in_run_super_important = false; //
 
 boolean __voting_setting_use_absentee_ballots = false; //this is not yet written
 boolean __voting_setting_confirm_initiatives_in_run = false; //set this to true if you want a confirmation box before we vote. or just vote by hand
-string __voting_version = "1.0.2";
+string __voting_version = "1.0.3";
 
 int __SNAKES__ = 5;
 int __BRCRAT__ = 4;
