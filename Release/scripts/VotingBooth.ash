@@ -13,7 +13,7 @@ boolean __voting_setting_make_extra_adventure_in_run_super_important = false; //
 
 boolean __voting_setting_use_absentee_ballots = false; //this is not yet written
 boolean __voting_setting_confirm_initiatives_in_run = false; //set this to true if you want a confirmation box before we vote. or just vote by hand
-string __voting_version = "1.0.2";
+string __voting_version = "1.0.3";
 
 
 boolean [string] __voting_negative_effects = $strings[Add sedatives to the water supply.,Distracting noises broadcast through compulsory teeth-mounted radio receivers.,Emissions cap on all magic-based combustion.,Exercise ban.,Mandatory 6pm curfew.,Requirement that all weapon handles be buttered.,Safety features added to all melee weapons.,Shut down all local dog parks.,State nudity initiative.,Vaccination reversals for all citizens.,All bedsheets replaced with giant dryer sheets.,All citizens required to look <i>all four</i> ways before crossing the street.,Ban on petroleum-based gels and pomades.,Increased taxes at all income levels.,Mandatory item tithing.,Reduced public education spending.];
@@ -181,7 +181,7 @@ void voteInVotingBooth(boolean allow_interacting_with_user)
 			
 			if (zoinks)
 			{
-				print_html("Voting for ghosts.");
+				print("Voting for ghosts.");
 				desired_g = key + 1;
 				break;
 			}
