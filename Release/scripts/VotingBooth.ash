@@ -14,7 +14,7 @@ boolean __voting_setting_make_extra_adventure_in_run_super_important = false; //
 
 boolean __voting_setting_use_absentee_ballots = true;
 boolean __voting_setting_confirm_initiatives_in_run = false; //set this to true if you want a confirmation box before we vote. or just vote by hand
-string __voting_version = "2.0";
+string __voting_version = "2.0.1";
 
 //Higher is better. Identical is random.
 //Default: Vote for ghosts, random otherwise.
@@ -35,6 +35,7 @@ if (true)
 	if (year_month == "201904" || year_month == "201905")
 	{
 		__voting_setting_monster_priorities[$monster[Annoyed snake]] += 11;
+		__voting_setting_monster_priorities[$monster[Slime blob]] += 10; //+init
 	}
 }
 
