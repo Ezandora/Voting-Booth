@@ -14,7 +14,7 @@ boolean __voting_setting_make_extra_adventure_in_run_super_important = false; //
 
 boolean __voting_setting_use_absentee_ballots = true;
 boolean __voting_setting_confirm_initiatives_in_run = false; //set this to true if you want a confirmation box before we vote. or just vote by hand
-string __voting_version = "2.0.1";
+string __voting_version = "2.0.2";
 
 //Higher is better. Identical is random.
 //Default: Vote for ghosts, random otherwise.
@@ -27,17 +27,6 @@ int [monster] __voting_setting_monster_priorities =
 	$monster[Annoyed snake]:0,
 };
 
-if (true)
-{
-	//Until the vampyre path ends, vote for snakes:
-	//we should check the day but w/e
-	string year_month = format_date_time("yyyyMMdd", today_to_string(), "yyyyMM");
-	if (year_month == "201904" || year_month == "201905")
-	{
-		__voting_setting_monster_priorities[$monster[Annoyed snake]] += 11;
-		__voting_setting_monster_priorities[$monster[Slime blob]] += 10; //+init
-	}
-}
 
 
 
@@ -131,7 +120,7 @@ void voteInVotingBooth(boolean allow_interacting_with_user)
 	//Out of run, familiar experience is... marginal?
 	if (king_liberated)
 		initiative_priorities["Repeal leash laws."] = 25; //+2 Familiar Experience Per Combat
-	if (my_path() == "Dark Gyffte") //can't +hp
+	if (my_path().id == 35) //can't +hp
 		initiative_priorities["Subsidies for health potion manufacturers."] = -100; //Maximum HP +30%
 
 
@@ -253,7 +242,7 @@ void voteInVotingBooth(boolean allow_interacting_with_user)
 	log.append(log_delimiter);
 	log.append(my_class());
 	log.append(log_delimiter);
-	log.append(my_path());
+	log.append(my_path().name);
 	print_html("<strong>Available initiatives:</strong>");
 	foreach key in local_initiative_matches
 	{
