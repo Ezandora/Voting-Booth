@@ -14,7 +14,7 @@ boolean __voting_setting_make_extra_adventure_in_run_super_important = false; //
 
 boolean __voting_setting_use_absentee_ballots = true;
 boolean __voting_setting_confirm_initiatives_in_run = false; //set this to true if you want a confirmation box before we vote. or just vote by hand
-string __voting_version = "2.0.2";
+string __voting_version = "2.0.3";
 
 //Higher is better. Identical is random.
 //Default: Vote for ghosts, random otherwise.
@@ -229,7 +229,9 @@ void voteInVotingBooth(boolean allow_interacting_with_user)
 		print("Voting for " + platform_for_g[desired_g] + " over " + (desired_g == 1 ? platform_for_g[2] : platform_for_g[1]) + ".");
 	}
 
-	string [int][int] local_initiative_matches = page_text.group_string("<input type=\"checkbox\".*?value=\"([0-9])\".*?> (.*?)<br");
+	string [int][int] local_initiative_matches = page_text.group_string("<input type=\"radio\".*?value=\"([0-9])\".*?>.*?<td>(.*?)<br");
+	
+	//print_html("local_initiative_matches = " + local_initiative_matches.to_json().entity_encode());
 	
 	string [int] initiative_names;
 	int [string] initiative_values;
