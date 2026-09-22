@@ -14,7 +14,8 @@ boolean __voting_setting_make_extra_adventure_in_run_super_important = false; //
 
 boolean __voting_setting_use_absentee_ballots = true;
 boolean __voting_setting_confirm_initiatives_in_run = false; //set this to true if you want a confirmation box before we vote. or just vote by hand
-string __voting_version = "2.0.3";
+string __voting_version = "2.1";
+float __voting_priority_dual_vote_multiplier_threshold = 1.3; //if the primary priority is more than the secondary multiplied by this value, vote the primary twice.
 
 //Higher is better. Identical is random.
 //Default: Vote for ghosts, random otherwise.
@@ -63,10 +64,10 @@ void voteInVotingBooth(boolean allow_interacting_with_user)
 	//I spent like ten seconds on it, so feel free to change it.
 	//Larger numbers are the best initiatives.
 	float [string] initiative_priorities;
-	initiative_priorities["State-mandated bed time of 8PM."] = 100; //+1 Adventure(s) per day
+	initiative_priorities["Institute GBLI (Guaranteed Basic Loot Income.)"] = 125; //+15% Item Drops from Monsters
+	initiative_priorities["Reduced taxes at all income levels."] = 100; //+30% Meat from Monsters
+	initiative_priorities["State-mandated bed time of 8PM."] = 90; //+1 Adventure(s) per day
 	initiative_priorities["Repeal leash laws."] = 75; //+2 Familiar Experience Per Combat
-	initiative_priorities["Institute GBLI (Guaranteed Basic Loot Income.)"] = 50; //+15% Item Drops from Monsters
-	initiative_priorities["Reduced taxes at all income levels."] = 45; //+30% Meat from Monsters
 	initiative_priorities["Mandatory morning calisthenics for all citizens."] = 42; //Muscle +25%
 	initiative_priorities["Compulsory dance lessons every weekend."] = 41; //Moxie +25%
 	initiative_priorities["Replace all street signs with instructions for arcane rituals."] = 40; //Mysticality +25%
@@ -97,6 +98,24 @@ void voteInVotingBooth(boolean allow_interacting_with_user)
 	initiative_priorities["Ban belts."] = 10; //+30% Pants Drops from Monsters
 	initiative_priorities["Mandatory martial arts classes for all citizens."] = 0; //+20 Damage to Unarmed Attacks
 	initiative_priorities["\"Song that Never Ends\" pumped throughout speakers in all of Kingdom."] = -100; //+10 to Monster Level
+	
+	initiative_priorities["Add sedatives to the water supply."] = -100; //= "-10 to Monster Level";
+	initiative_priorities["Distracting noises broadcast through compulsory teeth-mounted radio receivers."] = -100; //"-3 Stats Per Fight";
+	initiative_priorities["Emissions cap on all magic-based combustion."] = -100; //"Spell Damage -50%";
+	initiative_priorities["Exercise ban."] = -100; //"Muscle -20";
+	initiative_priorities["Mandatory 6pm curfew."] = -100; //"+-2 Adventure(s) per day";
+	initiative_priorities["Requirement that all weapon handles be buttered."] = -100; //"-10% chance of Critical Hit";
+	initiative_priorities["Safety features added to all melee weapons."] = -100; //"Weapon Damage -50%";
+	initiative_priorities["Shut down all local dog parks."] = -100; //"-2 Familiar Experience Per Combat";
+	initiative_priorities["State nudity initiative."] = -100; //"-50% Gear Drops from Monsters";
+	initiative_priorities["Vaccination reversals for all citizens."] = -100; //"Maximum HP -50%";
+	initiative_priorities["All bedsheets replaced with giant dryer sheets."] = -100; //"Maximum MP -50%";
+	initiative_priorities["All citizens required to look <i>all four</i> ways before crossing the street."] = -100; //"-30% Combat Initiative";
+	initiative_priorities["Ban on petroleum-based gels and pomades."] = -100; //"Moxie -20";
+	initiative_priorities["Increased taxes at all income levels."] = -100; //"-30% Meat from Monsters";
+	initiative_priorities["Mandatory item tithing."] = -100; //"-20% Item Drops from Monsters";
+	initiative_priorities["Reduced public education spending."] = -100; //"Mysticality -20";
+	
 	//Alter priorities depending on state:
 	if (my_level() < 13)
 	{
@@ -180,6 +199,16 @@ void voteInVotingBooth(boolean allow_interacting_with_user)
 	initiative_descriptions["Mandatory item tithing."] = "-20% Item Drops from Monsters";
 	initiative_descriptions["Reduced public education spending."] = "Mysticality -20";
 	
+	
+	if (false)
+	{
+		//Verify missing priorities:
+		foreach key in initiative_descriptions
+		{
+			if (!(initiative_priorities contains key))
+				print("Missing priority for " + key, "red");
+		}
+	}
 	string [int][int] platform_matches = page_text.group_string("<blockquote>(.*?)</blockquote>");
 	
 	int desired_g = random(2) + 1;
@@ -256,7 +285,10 @@ void voteInVotingBooth(boolean allow_interacting_with_user)
 		log.append(initiative_name);
 		
 		//print_html("\"" + initiative_name + "\": " + initaitive_value + " (" + initiative_descriptions[initiative_name] + ")");
-		print_html("&nbsp;&nbsp;&nbsp;&nbsp;" + initiative_descriptions[initiative_name]);
+		string line = "&nbsp;&nbsp;&nbsp;&nbsp;" + initiative_descriptions[initiative_name];
+		if (true)
+			line += " (priority: " + initiative_priorities[initiative_name] + ")";
+		print_html(line);
 		if (__voting_negative_effects contains initiative_name) continue;
 		
 		
@@ -271,21 +303,33 @@ void voteInVotingBooth(boolean allow_interacting_with_user)
 	print_html("");
 	logprint(log);
 	sort initiative_names by -initiative_priorities[value];
+	
+	string initiative_1 = initiative_names[0];
+	string initiative_2 = initiative_names[1];
 	if (initiative_names.count() < 2)
 	{
 		print_html("Internal error: Not enough local initiatives.");
 		visit_url("choice.php?option=2&whichchoice=1331"); //cancel out
 		return;
 	}
+	float priority_main = initiative_priorities[initiative_1];
+	float priority_secondary = initiative_priorities[initiative_2];
+	if (to_float(priority_main) >= to_float(priority_secondary) * __voting_priority_dual_vote_multiplier_threshold)
+	{
+		initiative_2 = initiative_1;
+	}
 	print_html("<strong>Chosen initiatives:</strong>");
-	foreach key, name in initiative_names
+	print_html("&nbsp;&nbsp;&nbsp;&nbsp;" + initiative_descriptions[initiative_1]);
+	print_html("&nbsp;&nbsp;&nbsp;&nbsp;" + initiative_descriptions[initiative_2]);
+	
+	/*foreach key, name in initiative_names
 	{
 		if (key > 1) continue;
 		print_html("&nbsp;&nbsp;&nbsp;&nbsp;" + initiative_descriptions[name]);
-	}
+	}*/
 	if (__voting_setting_confirm_initiatives_in_run && (true || !can_interact()))
 	{
-		boolean yes = user_confirm("Do you want to vote for these initiatives?\n\n" + initiative_descriptions[initiative_names[0]] + "\n" + initiative_descriptions[initiative_names[1]]);
+		boolean yes = user_confirm("Do you want to vote for these initiatives?\n\n" + initiative_descriptions[initiative_1] + "\n" + initiative_descriptions[initiative_2]);
 		if (!yes)
 		{
 			print_html("Not voting.");
@@ -293,8 +337,9 @@ void voteInVotingBooth(boolean allow_interacting_with_user)
 		}
 	}
 	//print_html("initiative_names = " + initiative_names.to_json());
-	visit_url("choice.php?option=1&whichchoice=1331&g=" + desired_g + "&local[]=" + initiative_values[initiative_names[0]] + "&local[]=" + initiative_values[initiative_names[1]]);
+	visit_url("choice.php?option=1&whichchoice=1331&g=" + desired_g + "&local[0]=" + initiative_values[initiative_1] + "&local[1]=" + initiative_values[initiative_2]);
 	
+	//previous URL, new one uses local[0] and local[1]:
 	//https://www.kingdomofloathing.com/choice.php?pwd&option=1&whichchoice=1331&g=1&local[]=0&local[]=2
 	//pwd&option=1&whichchoice=1331&g=1&local%5B%5D=0&local%5B%5D=2
 	//option=1&whichchoice=1331&g=
